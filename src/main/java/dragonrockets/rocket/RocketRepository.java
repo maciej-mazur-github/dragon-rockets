@@ -6,17 +6,11 @@ import dragonrockets.exception.RocketNotAssignedToMissionException;
 import dragonrockets.exception.RocketNotFoundException;
 import dragonrockets.mission.Manager;
 import dragonrockets.mission.Mission;
-import dragonrockets.mission.MissionManager;
 
 import java.util.*;
 
 public class RocketRepository implements Repository {
     private final Map<String, Rocket> rockets = new HashMap<>();
-
-    @Override
-    public boolean contains(String rocketName) {
-        return rockets.containsKey(rocketName);
-    }
 
     @Override
     public Optional<Rocket> findRocket(String rocketName) {
@@ -113,17 +107,4 @@ public class RocketRepository implements Repository {
                 .filter(rocket -> rocket.getLastMission().get().getName().equalsIgnoreCase(mission.getName()))
                 .toList();
     }
-
-//    private void wipeOutRocketsLastMission(Rocket rocket, Mission mission) {
-//        if (rocket.getLastMission().isPresent()) {
-//            if (rocket.getLastMission().get().equals(mission)) {
-//                rocket.setLastMission(null);
-//            }
-//        }
-//    }
-
-//    @Override
-//    public List<Rocket> getRockets() {
-//        return new ArrayList<>(rockets.values());
-//    }
 }

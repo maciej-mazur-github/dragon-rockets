@@ -36,8 +36,9 @@ public class MissionManager implements Manager {
     @Override
     public void assignRocketToMission(Rocket rocket, String missionName) {
         Mission mission = missions.get(missionName);
-        // Assigning rocket to mission automatically sets rocket's status to IN_SPACE
-//        rocket.setStatus(RocketStatus.IN_SPACE);
+
+        // Final status will depend on the original status - ON_GROUND rocket will be set to IN_SPACE,
+        // IN_REPAIR rocket (only the one that was grounded after being set IN_REPAIR)
         RocketStatus desiredStatus = rocket.getStatus() == RocketStatus.ON_GROUND ? RocketStatus.IN_SPACE : RocketStatus.IN_REPAIR;
         setRocketStatus(rocket, missionName, desiredStatus);
         rocket.setLastMission(mission);
@@ -74,7 +75,7 @@ public class MissionManager implements Manager {
 
             if (mission.getInSpaceRocketsRepository().getNumberOfRockets() == 0
                     && mission.getInRepairRocketsRepository().getNumberOfRockets() == 0) {
-//                mission.setStatus(MissionStatus.SCHEDULED);
+
                 setMissionStatus(missionName, MissionStatus.SCHEDULED);
                 mainRepository.wipeOutRocketsLastMission(mission);
             }

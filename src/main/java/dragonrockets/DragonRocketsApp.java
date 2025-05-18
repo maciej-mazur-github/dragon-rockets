@@ -4,6 +4,7 @@ import dragonrockets.exception.MissionNotFoundException;
 import dragonrockets.exception.RocketNotFoundException;
 import dragonrockets.mission.*;
 import dragonrockets.rocket.*;
+import dragonrockets.utils.SummaryUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,48 +72,18 @@ public class DragonRocketsApp {
                 .filter(rocket -> rocket.getLastMission().isPresent())
                 .collect(Collectors.groupingBy(rocket -> rocket.getLastMission().get().getName()))
                 .entrySet().stream()
-                .map(this::convertEntryToMissionSummary)
+                .map(SummaryUtils::convertEntryToMissionSummary)
                 .toList();
 
         List<MissionSummary> scheduledAndEndedMissionSummaries = missionManager.getMissions().stream()
                 .filter(mission -> mission.getStatus() == MissionStatus.SCHEDULED || mission.getStatus() == MissionStatus.ENDED)
-                .map(this::convertMissionToMissionSummary)
+                .map(SummaryUtils::convertMissionToMissionSummary)
                 .toList();
 
         return Stream.concat(inProgressAndPendingMissionSummaries.stream(), scheduledAndEndedMissionSummaries.stream())
                 .sorted(Comparator.comparing(MissionSummary::getRocketNumber).reversed()
                         .thenComparing(Comparator.comparing(MissionSummary::name).reversed()))
-                .map(this::sortRockets)
-                .toList();
-    }
-
-    private MissionSummary convertMissionToMissionSummary(Mission mission) {
-        List<RocketSummary> rocketSummaries = mission.getInSpaceRocketsRepository().getRockets().stream()
-                .map(Rocket::convertToRocketSummary)
-                .toList();
-        return new MissionSummary(mission.getName(), mission.getStatus().getSummaryForm(), rocketSummaries);
-    }
-
-    private MissionSummary sortRockets(MissionSummary missionSummary) {
-        List<RocketSummary> sortedRocketSummaries = missionSummary.rocketSummaries().stream()
-                .sorted(Comparator.comparing(RocketSummary::status).reversed()
-                        .thenComparing(RocketSummary::name))
-                .toList();
-        return new MissionSummary(missionSummary.name(), missionSummary.status(), sortedRocketSummaries);
-    }
-
-    private MissionSummary convertEntryToMissionSummary(Map.Entry<String, List<Rocket>> entry) {
-        String missionName = entry.getKey();
-        // At this point the mission contains at least 1 rocket, otherwise it would be filtered out earlier
-        String missionStatus = entry.getValue().get(0).getLastMission().orElseThrow().getStatus().getSummaryForm();
-        List<Rocket> rockets = entry.getValue();
-        List<RocketSummary> rocketSummaries = convertRocketsToRocketSummaries(rockets);
-        return new MissionSummary(missionName, missionStatus, rocketSummaries);
-    }
-
-    private List<RocketSummary> convertRocketsToRocketSummaries(List<Rocket> rockets) {
-        return rockets.stream()
-                .map(Rocket::convertToRocketSummary)
+                .map(SummaryUtils::sortRockets)
                 .toList();
     }
 

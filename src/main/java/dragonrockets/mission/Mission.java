@@ -4,9 +4,6 @@ import dragonrockets.rocket.Repository;
 import dragonrockets.rocket.Rocket;
 import dragonrockets.rocket.RocketRepository;
 
-import java.util.Objects;
-import java.util.Optional;
-
 public class Mission {
     private final String name;
     private final Repository inSpaceRocketsRepository;
@@ -31,14 +28,6 @@ public class Mission {
     public MissionStatus getStatus() {
         return status;
     }
-
-//    public int getNumberOfRocketsNotInRepair() {
-//        return inSpaceRocketsRepository.getNumberOfRockets();
-//    }
-//
-//    public Optional<Rocket> findRocket(String rocketName) {
-//        return inSpaceRocketsRepository.findRocket(rocketName);
-//    }
 
     public void setStatus(MissionStatus status) {
         this.status = status;

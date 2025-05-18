@@ -23,20 +23,4 @@ public record MissionSummary(String name, String status, List<RocketSummary> roc
 
         return builder.toString();
     }
-
-    //    public MissionDto(List<Mission> missions) {
-//        this.missions = missions;
-//    }
-//
-//    public Optional<Mission> findMission(String missionName) {
-//        return Optional.empty();
-//    }
-//
-//    public int getNumberOfMissions() {
-//        return 0;
-//    }
-//
-//    public List<Mission> getMissions() {
-//        return new ArrayList<>();
-//    }
 }

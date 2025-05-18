@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface Repository {
-    boolean contains(String rocketName);
-
     Optional<Rocket> findRocket(String rocketName);
 
     boolean addRocket(Rocket rocket);
@@ -26,6 +24,4 @@ public interface Repository {
     void wipeOutRocketsLastMission(Mission mission);
 
     List<Rocket> findRocketsByMission(Mission mission);
-
-//    List<Rocket> getRockets();
 }
