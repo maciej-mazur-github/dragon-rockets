@@ -1,11 +1,14 @@
 import dragonrockets.DragonRocketsApp;
 import dragonrockets.exception.MissionNotFoundException;
+import dragonrockets.exception.RocketAssignedToAnotherMissionException;
+import dragonrockets.exception.RocketNotAssignedToMissionException;
 import dragonrockets.exception.RocketNotFoundException;
 import dragonrockets.mission.Mission;
 import dragonrockets.mission.MissionStatus;
 import dragonrockets.mission.MissionSummary;
 import dragonrockets.rocket.Rocket;
 import dragonrockets.rocket.RocketStatus;
+import dragonrockets.rocket.RocketSummary;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -24,17 +27,28 @@ public class DragonRocketsAppTest {
         app.assignRocketToMission("Dragon1", "Luna");
 
         // when
-        MissionSummary missionSummary = app.getMissionSummary();
+        List<MissionSummary> summary = app.getSummary();
 
         // then
-        assertThat(missionSummary.getNumberOfMissions()).isEqualTo(1);
-        assertThat(missionSummary.findMission("Luna")).isPresent();
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon1")).isPresent();
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.IN_PROGRESS);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon1").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(1);
+//        assertThat(missionSummary.getNumberOfMissions()).isEqualTo(1);
+        assertThat(summary.get(0).getRocketNumber()).isEqualTo(1);
+
+//        assertThat(missionSummary.findMission("Luna")).isPresent();
+        assertThat(summary.get(0).name()).isEqualTo("Luna");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon1")).isPresent();
+        assertThat(summary.get(0).rocketSummaries().get(0).name()).isEqualTo("Dragon1");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.IN_PROGRESS);
+        assertThat(summary.get(0).status()).isEqualTo("In progress");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon1").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(summary.get(0).rocketSummaries().get(0).status()).isEqualTo("In space");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(1);
+        assertThat(summary.get(0).getRocketNumber()).isEqualTo(1);
     }
 
     @Test
@@ -43,14 +57,22 @@ public class DragonRocketsAppTest {
         app.addNewMission("Luna");
 
         // when
-        MissionSummary missionSummary = app.getMissionSummary();
+//        MissionSummary missionSummary = app.getSummary();
+        List<MissionSummary> summary = app.getSummary();
 
         // then
-        assertThat(missionSummary.getNumberOfMissions()).isEqualTo(1);
-        assertThat(missionSummary.findMission("Luna")).isPresent();
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(0);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.SCHEDULED);
+//        assertThat(missionSummary.getNumberOfMissions()).isEqualTo(1);
+        assertThat(summary.size()).isEqualTo(1);
+
+//        assertThat(missionSummary.findMission("Luna")).isPresent();
+        assertThat(summary.get(0).name()).isEqualTo("Luna");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(0);
+        assertThat(summary.get(0).getRocketNumber()).isEqualTo(0);
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.SCHEDULED);
+        assertThat(summary.get(0).status()).isEqualTo("Scheduled");
 
     }
 
@@ -83,8 +105,9 @@ public class DragonRocketsAppTest {
 
         // then
         assertThat(app.assignRocketToMission("Dragon1", "Luna")).isFalse();
-        assertThat(app.getMissionSummary().findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(1);
+//        assertThat(app.getSummary().findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(1);
+        assertThat(app.getSummary().get(0).getRocketNumber()).isEqualTo(1);
     }
 
     @Test
@@ -97,12 +120,17 @@ public class DragonRocketsAppTest {
 
         // then
         assertThat(app.assignRocketToMission("Dragon1", "Transit")).isFalse();
-        assertThat(app.getMissionSummary().findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(1);
-        assertThat(app.getMissionSummary().findMission("Transit").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(0);
-        assertThat(app.getMissionSummary().findMission("Transit").orElseThrow().getStatus())
-                .isEqualTo(MissionStatus.SCHEDULED);
+//        assertThat(app.getSummary().findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(1);
+        assertThat(app.getSummary().get(0).getRocketNumber()).isEqualTo(1);
+
+//        assertThat(app.getSummary().findMission("Transit").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(0);
+        assertThat(app.getSummary().get(1).getRocketNumber()).isEqualTo(0);
+
+//        assertThat(app.getSummary().findMission("Transit").orElseThrow().getStatus())
+//                .isEqualTo(MissionStatus.SCHEDULED);
+        assertThat(app.getSummary().get(1).status()).isEqualTo("Scheduled");
     }
 
     @Test
@@ -112,11 +140,16 @@ public class DragonRocketsAppTest {
 
         // then
         assertThat(app.addNewMission("Luna")).isFalse();
-        assertThat(app.getMissionSummary().getNumberOfMissions()).isEqualTo(1);
-        assertThat(app.getMissionSummary().findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(0);
-        assertThat(app.getMissionSummary().findMission("Luna").orElseThrow().getStatus())
-                .isEqualTo(MissionStatus.SCHEDULED);
+//        assertThat(app.getSummary().getNumberOfMissions()).isEqualTo(1);
+        assertThat(app.getSummary().size()).isEqualTo(1);
+
+//        assertThat(app.getSummary().findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(0);
+        assertThat(app.getSummary().get(0).getRocketNumber()).isEqualTo(0);
+
+//        assertThat(app.getSummary().findMission("Luna").orElseThrow().getStatus())
+//                .isEqualTo(MissionStatus.SCHEDULED);
+        assertThat(app.getSummary().get(0).status()).isEqualTo("Scheduled");
     }
 
     @Test
@@ -126,8 +159,34 @@ public class DragonRocketsAppTest {
 
         // then
         assertThat(app.addNewRocketToRepository("Dragon1")).isFalse();
-        assertThat(app.getRocketRepository().findRocket("Dragon1").orElseThrow().getStatus())
-                .isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(app.getRocketRepository().findRocket("Dragon1").orElseThrow().getStatus())
+//                .isEqualTo(RocketStatus.ON_GROUND);
+    }
+
+    @Test
+    void shouldNotBeAbleToChangeRocketStatusIfRocketHasNotBeenAssignedToAnyMission() {
+        // given, when
+        app.addNewMission("Luna");
+        app.addNewRocketToRepository("Dragon1");
+
+        // then
+        assertThatThrownBy(
+                () -> app.setRocketStatus("Dragon1", "Luna", RocketStatus.IN_SPACE))
+                .isInstanceOf(RocketNotAssignedToMissionException.class);
+    }
+
+    @Test
+    void shouldNotBeAbleToChangeRocketStatusIfRocketHasBeenAssignedToOtherMissionThanSpecifiedInMethodArgument() {
+        // given, when
+        app.addNewMission("Luna");
+        app.addNewMission("Transit");
+        app.addNewRocketToRepository("Dragon1");
+        app.assignRocketToMission("Dragon1", "Luna");
+
+        // then
+        assertThatThrownBy(
+                () -> app.setRocketStatus("Dragon1", "Transit", RocketStatus.IN_SPACE))
+                .isInstanceOf(RocketAssignedToAnotherMissionException.class);
     }
 
     @Test
@@ -141,11 +200,19 @@ public class DragonRocketsAppTest {
         app.setRocketStatus("Dragon1", "Luna", RocketStatus.ON_GROUND);
 
         // then
-        Mission mission = app.getMissionSummary().findMission("Luna").orElseThrow();
+//        Mission mission = app.getSummary().findMission("Luna").orElseThrow();
+        MissionSummary missionSummary = app.getSummary().get(0);
 
-        assertThat(mission.containsRocket("Dragon1")).isTrue();
-        assertThat(mission.getStatus()).isEqualTo(MissionStatus.SCHEDULED);
-        assertThat(mission.findRocket("Dragon1").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(mission.containsNonInRepairRocket("Dragon1")).isTrue();
+//        assertThat(missionSummary.rocketSummaries().get(0).name()).isEqualTo("Dragon1");
+
+//        assertThat(mission.getStatus()).isEqualTo(MissionStatus.SCHEDULED);
+
+        assertThat(missionSummary.status()).isEqualTo("Scheduled");
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(0);
+
+//        assertThat(mission.findRocket("Dragon1").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.rocketSummaries().get(0).status()).isEqualTo("On ground");
     }
 
     @Test
@@ -174,19 +241,28 @@ public class DragonRocketsAppTest {
         app.setRocketStatus("Dragon1", "Luna", RocketStatus.IN_REPAIR);
 
         // then
-        MissionSummary missionSummary = app.getMissionSummary();
+//        MissionSummary missionSummary = app.getSummary();
+        MissionSummary missionSummary = app.getSummary().get(0);
 
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.PENDING);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(2);
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.PENDING);
+        assertThat(missionSummary.status()).isEqualTo("Pending");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(2);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(2);
+
 //        assertThat(missionSummary.findMission("Luna").orElseThrow()
 //                .findRocket("Dragon1").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_REPAIR);
-        assertThat(app.getRocketRepository().findRocket("Dragon1").orElseThrow().getStatus())
-                .isEqualTo(RocketStatus.IN_REPAIR);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon2").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon3").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+//        assertThat(app.getRocketRepository().findRocket("Dragon1").orElseThrow().getStatus())
+//                .isEqualTo(RocketStatus.IN_REPAIR);
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon2").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+        assertThat(missionSummary.rocketSummaries().get(0).status()).isEqualTo("On ground");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon3").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(missionSummary.rocketSummaries().get(1).status()).isEqualTo("In space");
     }
 
     @Test
@@ -203,17 +279,27 @@ public class DragonRocketsAppTest {
         // then
         assertThat(app.setMissionStatus("Luna", MissionStatus.PENDING)).isFalse();
 
-        MissionSummary missionSummary = app.getMissionSummary();
+//        MissionSummary missionSummary = app.getSummary();
+        MissionSummary missionSummary = app.getSummary().get(0);
 
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.IN_PROGRESS);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(3);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon1").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon2").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon3").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.IN_PROGRESS);
+        assertThat(missionSummary.status()).isEqualTo("In progress");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(3);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(3);
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon1").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(missionSummary.rocketSummaries().get(0).status()).isEqualTo("In space");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon2").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(missionSummary.rocketSummaries().get(1).status()).isEqualTo("In space");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon3").orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(missionSummary.rocketSummaries().get(2).status()).isEqualTo("In space");
     }
 
     @Test
@@ -233,17 +319,26 @@ public class DragonRocketsAppTest {
         // then
         assertThat(app.setMissionStatus("Luna", MissionStatus.IN_PROGRESS)).isFalse();
 
-        MissionSummary missionSummary = app.getMissionSummary();
+        MissionSummary missionSummary = app.getSummary().get(0);
 
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.ENDED);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(0);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon1").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon2").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon3").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.ENDED);
+        assertThat(missionSummary.status()).isEqualTo("Ended");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(0);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(0);
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon1").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.rocketSummaries().get(0).status()).isEqualTo("On ground");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon2").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.rocketSummaries().get(1).status()).isEqualTo("On ground");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon3").orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.rocketSummaries().get(2).status()).isEqualTo("On ground");
     }
 
     @Test
@@ -261,23 +356,27 @@ public class DragonRocketsAppTest {
         app.setMissionStatus("Luna", MissionStatus.ENDED);
 
         // then
-        MissionSummary missionSummary = app.getMissionSummary();
+        MissionSummary missionSummary = app.getSummary().get(0);
 
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair()).isEqualTo(0);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.ENDED);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon1").orElseThrow().getStatus())
-                .isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon2").orElseThrow().getStatus())
-                .isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(missionSummary.findMission("Luna").orElseThrow()
-                .findRocket("Dragon3").orElseThrow().getStatus())
-                .isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair()).isEqualTo(0);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(0);
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.ENDED);
+        assertThat(missionSummary.status()).isEqualTo("Ended");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon1").orElseThrow().getStatus())
+//                .isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon2").orElseThrow().getStatus())
+//                .isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.findMission("Luna").orElseThrow()
+//                .findRocket("Dragon3").orElseThrow().getStatus())
+//                .isEqualTo(RocketStatus.ON_GROUND);
     }
 
     @Test
-    void shouldNotChangeMissionStatusWhenOneOfMissionRocketsIsGrounded() {
+    void shouldKeepMissionStatusInProgressWhenOneOfMissionRocketsIsGrounded() {
         // given
         app.addNewMission("Transit");
         app.addNewRocketToRepository("Red Dragon");
@@ -289,22 +388,38 @@ public class DragonRocketsAppTest {
 
         // when
         app.setRocketStatus("Red Dragon", "Transit", RocketStatus.ON_GROUND);
-        MissionSummary missionSummary = app.getMissionSummary();
+        MissionSummary missionSummary = app.getSummary().get(0);
 
         // then
-        assertThat(missionSummary.findMission("Transit").orElseThrow().getStatus())
-                .isEqualTo(MissionStatus.IN_PROGRESS);
-        assertThat(missionSummary.findMission("Transit").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(3);
-        assertThat(missionSummary.findMission("Transit").orElseThrow()
-                .findRocket("Red Dragon").orElseThrow().getStatus())
-                .isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(missionSummary.findMission("Transit").orElseThrow()
-                .findRocket("Dragon XL").orElseThrow().getStatus())
-                .isEqualTo(RocketStatus.IN_SPACE);
-        assertThat(missionSummary.findMission("Transit").orElseThrow()
-                .findRocket("Falcon Heavy").orElseThrow().getStatus())
-                .isEqualTo(RocketStatus.IN_SPACE);
+//        assertThat(missionSummary.findMission("Transit").orElseThrow().getStatus())
+//                .isEqualTo(MissionStatus.IN_PROGRESS);
+        assertThat(missionSummary.status()).isEqualTo("In progress");
+
+//        assertThat(missionSummary.findMission("Transit").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(3);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(3);
+
+//        assertThat(missionSummary.findMission("Transit").orElseThrow()
+//                .findRocket("Red Dragon").orElseThrow().getStatus())
+//                .isEqualTo(RocketStatus.ON_GROUND);
+        assertThat(missionSummary.rocketSummaries().get(0).name()).isEqualTo("Red Dragon");
+
+        assertThat(missionSummary.rocketSummaries().get(0).status()).isEqualTo("On ground");
+
+        assertThat(missionSummary.rocketSummaries().get(1).name()).isEqualTo("Dragon XL");
+
+        assertThat(missionSummary.rocketSummaries().get(1).status()).isEqualTo("In space");
+
+        assertThat(missionSummary.rocketSummaries().get(2).name()).isEqualTo("Falcon Heavy");
+
+        assertThat(missionSummary.rocketSummaries().get(2).status()).isEqualTo("In space");
+
+//        assertThat(missionSummary.findMission("Transit").orElseThrow()
+//                .findRocket("Dragon XL").orElseThrow().getStatus())
+//                .isEqualTo(RocketStatus.IN_SPACE);
+//        assertThat(missionSummary.findMission("Transit").orElseThrow()
+//                .findRocket("Falcon Heavy").orElseThrow().getStatus())
+//                .isEqualTo(RocketStatus.IN_SPACE);
     }
 
     @Test
@@ -319,6 +434,8 @@ public class DragonRocketsAppTest {
         app.assignRocketToMission("Dragon1", "Luna1");
         app.assignRocketToMission("Dragon2", "Luna1");
         app.assignRocketToMission("Dragon3", "Luna1");
+        app.setRocketStatus("Dragon1", "Luna1", RocketStatus.ON_GROUND);
+        app.setRocketStatus("Dragon2", "Luna1", RocketStatus.ON_GROUND);
         app.setRocketStatus("Dragon3", "Luna1", RocketStatus.IN_REPAIR);
 
         app.addNewMission("Double Landing");
@@ -349,57 +466,57 @@ public class DragonRocketsAppTest {
         app.setMissionStatus("Vertical Landing", MissionStatus.ENDED);
 
         // when
-        List<Mission> missions = app.getMissionSummary().getMissions();
+        List<MissionSummary> summaries = app.getSummary();
 
         // then
-        assertThat(missions.size()).isEqualTo(6);
+        assertThat(summaries.size()).isEqualTo(6);
 
-        Mission mission0 = missions.get(0);
-        assertThat(mission0.getNumberOfRocketsNotInRepair()).isEqualTo(3);
-        assertThat(mission0.getName()).isEqualTo("Transit");
-        assertThat(mission0.getStatus()).isEqualTo(MissionStatus.IN_PROGRESS);
-        List<Rocket> mission0Rockets = mission0.getRockets();
-        Rocket mission0Rocket0 = mission0Rockets.get(0);
-        assertThat(mission0Rocket0.getName()).isEqualTo("Red Dragon");
-        assertThat(mission0Rocket0.getStatus()).isEqualTo(RocketStatus.ON_GROUND);
-        Rocket mission0Rocket1 = mission0Rockets.get(1);
-        assertThat(mission0Rocket1.getName()).isEqualTo("Dragon XL");
-        assertThat(mission0Rocket1.getStatus()).isEqualTo(RocketStatus.IN_SPACE);
-        Rocket mission0Rocket2 = mission0Rockets.get(2);
-        assertThat(mission0Rocket2.getName()).isEqualTo("Falcon Heavy");
-        assertThat(mission0Rocket2.getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        MissionSummary mission0Summary = summaries.get(0);
+        assertThat(mission0Summary.getRocketNumber()).isEqualTo(3);
+        assertThat(mission0Summary.name()).isEqualTo("Transit");
+        assertThat(mission0Summary.status()).isEqualTo("In progress");
+        List<RocketSummary> mission0RocketSummaries = mission0Summary.rocketSummaries();
+        RocketSummary mission0Rocket0Summary = mission0RocketSummaries.get(0);
+        assertThat(mission0Rocket0Summary.name()).isEqualTo("Red Dragon");
+        assertThat(mission0Rocket0Summary.status()).isEqualTo("On ground");
+        RocketSummary mission0Rocket1Summary = mission0RocketSummaries.get(1);
+        assertThat(mission0Rocket1Summary.name()).isEqualTo("Dragon XL");
+        assertThat(mission0Rocket1Summary.status()).isEqualTo("In space");
+        RocketSummary mission0Rocket2Summary = mission0RocketSummaries.get(2);
+        assertThat(mission0Rocket2Summary.name()).isEqualTo("Falcon Heavy");
+        assertThat(mission0Rocket2Summary.status()).isEqualTo("In space");
 
-        Mission mission1 = missions.get(1);
-        assertThat(mission1.getNumberOfRocketsNotInRepair()).isEqualTo(2);
-        assertThat(mission1.getName()).isEqualTo("Luna1");
-        assertThat(mission1.getStatus()).isEqualTo(MissionStatus.PENDING);
-        List<Rocket> mission1Rockets = mission1.getRockets();
-        Rocket mission1Rocket0 = mission1Rockets.get(0);
-        assertThat(mission1Rocket0.getName()).isEqualTo("Dragon1");
-        assertThat(mission1Rocket0.getStatus()).isEqualTo(RocketStatus.ON_GROUND);
-        Rocket mission1Rocket1 = mission1Rockets.get(1);
-        assertThat(mission1Rocket1.getName()).isEqualTo("Dragon2");
-        assertThat(mission1Rocket1.getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+        MissionSummary mission1Summary = summaries.get(1);
+        assertThat(mission1Summary.getRocketNumber()).isEqualTo(2);
+        assertThat(mission1Summary.name()).isEqualTo("Luna1");
+        assertThat(mission1Summary.status()).isEqualTo("Pending");
+        List<RocketSummary> mission1RocketSummaries = mission1Summary.rocketSummaries();
+        RocketSummary mission1Rocket0 = mission1RocketSummaries.get(0);
+        assertThat(mission1Rocket0.name()).isEqualTo("Dragon1");
+        assertThat(mission1Rocket0.status()).isEqualTo("On ground");
+        RocketSummary mission1Rocket1 = mission1RocketSummaries.get(1);
+        assertThat(mission1Rocket1.name()).isEqualTo("Dragon2");
+        assertThat(mission1Rocket1.status()).isEqualTo("On ground");
 
-        Mission mission2 = missions.get(2);
-        assertThat(mission2.getNumberOfRocketsNotInRepair()).isEqualTo(0);
-        assertThat(mission2.getName()).isEqualTo("Vertical Landing");
-        assertThat(mission2.getStatus()).isEqualTo(MissionStatus.ENDED);
+        MissionSummary mission2Summary = summaries.get(2);
+        assertThat(mission2Summary.getRocketNumber()).isEqualTo(0);
+        assertThat(mission2Summary.name()).isEqualTo("Vertical Landing");
+        assertThat(mission2Summary.status()).isEqualTo("Ended");
 
-        Mission mission3 = missions.get(3);
-        assertThat(mission3.getNumberOfRocketsNotInRepair()).isEqualTo(0);
-        assertThat(mission3.getName()).isEqualTo("Mars");
-        assertThat(mission3.getStatus()).isEqualTo(MissionStatus.SCHEDULED);
+        MissionSummary mission3Summary = summaries.get(3);
+        assertThat(mission3Summary.getRocketNumber()).isEqualTo(0);
+        assertThat(mission3Summary.name()).isEqualTo("Mars");
+        assertThat(mission3Summary.status()).isEqualTo("Scheduled");
 
-        Mission mission4 = missions.get(4);
-        assertThat(mission4.getNumberOfRocketsNotInRepair()).isEqualTo(0);
-        assertThat(mission4.getName()).isEqualTo("Luna2");
-        assertThat(mission4.getStatus()).isEqualTo(MissionStatus.SCHEDULED);
+        MissionSummary mission4Summary = summaries.get(4);
+        assertThat(mission4Summary.getRocketNumber()).isEqualTo(0);
+        assertThat(mission4Summary.name()).isEqualTo("Luna2");
+        assertThat(mission4Summary.status()).isEqualTo("Scheduled");
 
-        Mission mission5 = missions.get(5);
-        assertThat(mission5.getNumberOfRocketsNotInRepair()).isEqualTo(0);
-        assertThat(mission5.getName()).isEqualTo("Double Landing");
-        assertThat(mission5.getStatus()).isEqualTo(MissionStatus.ENDED);
+        MissionSummary mission5Summary = summaries.get(5);
+        assertThat(mission5Summary.getRocketNumber()).isEqualTo(0);
+        assertThat(mission5Summary.name()).isEqualTo("Double Landing");
+        assertThat(mission5Summary.status()).isEqualTo("Ended");
     }
 
     @Test
@@ -410,11 +527,10 @@ public class DragonRocketsAppTest {
         // then
         assertThat(app.setMissionStatus("Luna", MissionStatus.IN_PROGRESS)).isFalse();
 
-        MissionSummary missionSummary = app.getMissionSummary();
+        MissionSummary missionSummary = app.getSummary().get(0);
 
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(0);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.SCHEDULED);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(0);
+        assertThat(missionSummary.status()).isEqualTo("Scheduled");
     }
 
 //    @Test
@@ -458,22 +574,18 @@ public class DragonRocketsAppTest {
 
     @Test
     void shouldNotAddNewRocketToMissionThatHasAlreadyBeenEnded() {
-        // given
+        // given, when
         app.addNewMission("Luna");
         app.addNewRocketToRepository("Dragon1");
         app.assignRocketToMission("Dragon1", "Luna");
         app.setMissionStatus("Luna", MissionStatus.ENDED);
 
-        // when
-
-
         // then
         assertThat(app.assignRocketToMission("Dragon1", "Luna")).isFalse();
-        MissionSummary missionSummary = app.getMissionSummary();
+        MissionSummary missionSummary = app.getSummary().get(0);
 
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(1);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.ENDED);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(0);
+        assertThat(missionSummary.status()).isEqualTo("Ended");
     }
 
     @Test
@@ -489,13 +601,34 @@ public class DragonRocketsAppTest {
         // then
         assertThatCode(() -> app.assignRocketToMission("Dragon1", "Luna")).doesNotThrowAnyException();
 
-        MissionSummary missionSummary = app.getMissionSummary();
+        MissionSummary missionSummary = app.getSummary().get(0);
 
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(1);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.IN_PROGRESS);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon1").orElseThrow()
-                .getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(1);
+        assertThat(missionSummary.status()).isEqualTo("In progress");
+        assertThat(missionSummary.rocketSummaries().get(0).name()).isEqualTo("Dragon1");
+        assertThat(missionSummary.rocketSummaries().get(0).status()).isEqualTo("In space");
+    }
+
+    @Test
+    void shouldNotBeAbleToChangeRocketStatusFromOnGroundToInSpaceWithoutAssigningItBackToMission() {
+        // given
+        app.addNewMission("Luna");
+        app.addNewRocketToRepository("Dragon1");
+        app.assignRocketToMission("Dragon1", "Luna");
+
+        // when
+        app.setRocketStatus("Dragon1", "Luna", RocketStatus.ON_GROUND);
+
+        // then
+        assertThatThrownBy(() -> app.setRocketStatus("Dragon1", "Luna", RocketStatus.IN_SPACE))
+                .isInstanceOf(RocketNotAssignedToMissionException.class);
+
+        MissionSummary missionSummary = app.getSummary().get(0);
+
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(0);
+        assertThat(missionSummary.status()).isEqualTo("Scheduled");
+//        assertThat(missionSummary.rocketSummaries().get(0).name()).isEqualTo("Dragon1");
+//        assertThat(missionSummary.rocketSummaries().get(0).status()).isEqualTo("In space");
     }
 
     @Test
@@ -512,16 +645,25 @@ public class DragonRocketsAppTest {
         // then
         assertThatCode(() -> app.assignRocketToMission("Dragon1", "Transit")).doesNotThrowAnyException();
 
-        MissionSummary missionSummary = app.getMissionSummary();
+        List<MissionSummary> summaries = app.getSummary();
 
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(0);
-        assertThat(missionSummary.findMission("Transit").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(1);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.SCHEDULED);
-        assertThat(missionSummary.findMission("Transit").orElseThrow().getStatus()).isEqualTo(MissionStatus.IN_PROGRESS);
-        assertThat(missionSummary.findMission("Transit").orElseThrow().findRocket("Dragon1").orElseThrow()
-                .getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(0);
+        assertThat(summaries.get(0).getRocketNumber()).isEqualTo(1);
+
+//        assertThat(missionSummary.findMission("Transit").orElseThrow().getNumberOfRocketsNotInRepair())
+//                .isEqualTo(1);
+        assertThat(summaries.get(1).getRocketNumber()).isEqualTo(0);
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus()).isEqualTo(MissionStatus.SCHEDULED);
+        assertThat(summaries.get(0).status()).isEqualTo("In progress");
+
+//        assertThat(missionSummary.findMission("Transit").orElseThrow().getStatus()).isEqualTo(MissionStatus.IN_PROGRESS);
+        assertThat(summaries.get(1).status()).isEqualTo("Scheduled");
+
+//        assertThat(missionSummary.findMission("Transit").orElseThrow().findRocket("Dragon1").orElseThrow()
+//                .getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(summaries.get(0).rocketSummaries().get(0).status()).isEqualTo("In space");
     }
 
     @Test
@@ -541,11 +683,9 @@ public class DragonRocketsAppTest {
         app.setRocketStatus("Dragon3", "Luna", RocketStatus.ON_GROUND);
 
         // then
-        MissionSummary missionSummary = app.getMissionSummary();
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(3);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus())
-                .isEqualTo(MissionStatus.SCHEDULED);
+        MissionSummary missionSummary = app.getSummary().get(0);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(0);
+        assertThat(missionSummary.status()).isEqualTo("Scheduled");
     }
 
     @Test
@@ -563,17 +703,15 @@ public class DragonRocketsAppTest {
         app.setMissionStatus("Luna", MissionStatus.SCHEDULED);
 
         // then
-        MissionSummary missionSummary = app.getMissionSummary();
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(3);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus())
-                .isEqualTo(MissionStatus.SCHEDULED);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon1")
-                .orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon2")
-                .orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon3")
-                .orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+        MissionSummary missionSummary = app.getSummary().get(0);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(0);
+        assertThat(missionSummary.status()).isEqualTo("Scheduled");
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon1")
+//                .orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon2")
+//                .orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon3")
+//                .orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
     }
 
     @Test
@@ -592,21 +730,28 @@ public class DragonRocketsAppTest {
         app.setRocketStatus("Dragon1", "Luna", RocketStatus.IN_SPACE);
 
         // then
-        MissionSummary missionSummary = app.getMissionSummary();
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(3);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus())
-                .isEqualTo(MissionStatus.IN_PROGRESS);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon1")
-                .orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon2")
-                .orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon3")
-                .orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        MissionSummary missionSummary = app.getSummary().get(0);
+        assertThat(missionSummary.getRocketNumber()).isEqualTo(3);
+        assertThat(missionSummary.status()).isEqualTo("In progress");
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon1")
+//                .orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(missionSummary.rocketSummaries().get(0).name()).isEqualTo("Dragon1");
+        assertThat(missionSummary.rocketSummaries().get(0).status()).isEqualTo("In space");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon2")
+//                .orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(missionSummary.rocketSummaries().get(1).name()).isEqualTo("Dragon2");
+        assertThat(missionSummary.rocketSummaries().get(1).status()).isEqualTo("In space");
+
+//        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon3")
+//                .orElseThrow().getStatus()).isEqualTo(RocketStatus.IN_SPACE);
+        assertThat(missionSummary.rocketSummaries().get(2).name()).isEqualTo("Dragon3");
+        assertThat(missionSummary.rocketSummaries().get(2).status()).isEqualTo("In space");
     }
 
     @Test
-    void shouldBeAbleToGroundAllNonInRepairRocketsAndToNotChangeInRepairOnesStatusWhenMissionStatusChangedFromPendingToScheduled() {
+    void shouldChangeInProgressMissionStatusToPendingWhenRocketWasFirstInAnotherMissionThenSetToInRepairAndThenGroundedAndThenAssignedToAnotherMission() {
+        // given
         app.addNewMission("Luna");
         app.addNewRocketToRepository("Dragon1");
         app.addNewRocketToRepository("Dragon2");
@@ -614,22 +759,23 @@ public class DragonRocketsAppTest {
         app.assignRocketToMission("Dragon1", "Luna");
         app.assignRocketToMission("Dragon2", "Luna");
         app.assignRocketToMission("Dragon3", "Luna");
+
+        app.addNewMission("Transit");
+        app.addNewRocketToRepository("Dragon4");
+        app.assignRocketToMission("Dragon4", "Transit");
+
         app.setRocketStatus("Dragon1", "Luna", RocketStatus.IN_REPAIR);
+        app.setRocketStatus("Dragon1", "Luna", RocketStatus.ON_GROUND);
 
         // when
-        app.setMissionStatus("Luna", MissionStatus.SCHEDULED);
+        app.assignRocketToMission("Dragon1", "Transit");
 
         // then
-        MissionSummary missionSummary = app.getMissionSummary();
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getNumberOfRocketsNotInRepair())
-                .isEqualTo(2);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().getStatus())
-                .isEqualTo(MissionStatus.SCHEDULED);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon2")
-                .orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(missionSummary.findMission("Luna").orElseThrow().findRocket("Dragon3")
-                .orElseThrow().getStatus()).isEqualTo(RocketStatus.ON_GROUND);
-        assertThat(app.getRocketRepository().findRocket("Dragon1").orElseThrow().getStatus())
-                .isEqualTo(RocketStatus.IN_REPAIR);
+        List<MissionSummary> summaries = app.getSummary();
+
+        assertThat(summaries.get(0).getRocketNumber()).isEqualTo(2);
+        assertThat(summaries.get(0).status()).isEqualTo("In progress");
+        assertThat(summaries.get(1).status()).isEqualTo("Pending");
+        assertThat(summaries.get(1).getRocketNumber()).isEqualTo(2);
     }
 }

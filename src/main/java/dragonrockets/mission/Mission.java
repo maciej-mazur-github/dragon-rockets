@@ -2,37 +2,53 @@ package dragonrockets.mission;
 
 import dragonrockets.rocket.Repository;
 import dragonrockets.rocket.Rocket;
+import dragonrockets.rocket.RocketRepository;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class Mission {
-    private String name;
-    private Repository repository;
+    private final String name;
+    private final Repository inSpaceRocketsRepository;
+    private final Repository inRepairRocketsRepository;
     private MissionStatus status;
 
-    public String getName() {
-        return null;
+    public Mission(String name) {
+        this.name = name;
+        this.inSpaceRocketsRepository = new RocketRepository();
+        this.inRepairRocketsRepository = new RocketRepository();
+        this.status = MissionStatus.SCHEDULED;
     }
 
-    public boolean containsRocket(String rocketName) {
-        return repository.contains(rocketName);
+    public String getName() {
+        return name;
+    }
+
+    public void addRegularRocket(Rocket rocket) {
+        inSpaceRocketsRepository.addRocket(rocket);
     }
 
     public MissionStatus getStatus() {
         return status;
     }
 
-    public int getNumberOfRocketsNotInRepair() {
-        return 0;
+//    public int getNumberOfRocketsNotInRepair() {
+//        return inSpaceRocketsRepository.getNumberOfRockets();
+//    }
+//
+//    public Optional<Rocket> findRocket(String rocketName) {
+//        return inSpaceRocketsRepository.findRocket(rocketName);
+//    }
+
+    public void setStatus(MissionStatus status) {
+        this.status = status;
     }
 
-    public Optional<Rocket> findRocket(String rocketName) {
-        return Optional.empty();
+    public Repository getInSpaceRocketsRepository() {
+        return inSpaceRocketsRepository;
     }
 
-    public List<Rocket> getRockets() {
-        return new ArrayList<>();
+    public Repository getInRepairRocketsRepository() {
+        return inRepairRocketsRepository;
     }
 }

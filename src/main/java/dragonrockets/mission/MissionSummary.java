@@ -1,25 +1,42 @@
 package dragonrockets.mission;
 
-import java.util.ArrayList;
+import dragonrockets.rocket.RocketSummary;
+
 import java.util.List;
-import java.util.Optional;
 
-public class MissionSummary {
-    private final List<Mission> missions;
+public record MissionSummary(String name, String status, List<RocketSummary> rocketSummaries) {
 
-    public MissionSummary(List<Mission> missions) {
-        this.missions = missions;
+    public int getRocketNumber() {
+        return rocketSummaries.size();
     }
 
-    public Optional<Mission> findMission(String missionName) {
-        return Optional.empty();
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder(String.format(
+                "\u2022 %s - %s - Dragons: %d%n",
+                name,
+                status,
+                getRocketNumber()));
+        for (RocketSummary rocketSummary : rocketSummaries) {
+            builder.append(rocketSummary.toString());
+        }
+
+        return builder.toString();
     }
 
-    public int getNumberOfMissions() {
-        return 0;
-    }
-
-    public List<Mission> getMissions() {
-        return new ArrayList<>();
-    }
+    //    public MissionDto(List<Mission> missions) {
+//        this.missions = missions;
+//    }
+//
+//    public Optional<Mission> findMission(String missionName) {
+//        return Optional.empty();
+//    }
+//
+//    public int getNumberOfMissions() {
+//        return 0;
+//    }
+//
+//    public List<Mission> getMissions() {
+//        return new ArrayList<>();
+//    }
 }
