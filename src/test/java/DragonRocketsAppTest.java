@@ -546,7 +546,7 @@ public class DragonRocketsAppTest {
     }
 
     @Test
-    void shouldChangeInProgressMissionStatusToPendingWhenRocketWasFirstInAnotherMissionThenSetToInRepairAndThenGroundedAndThenAssignedToAnotherMission() {
+    void shouldNotBeAbleToReassignRocketToAnotherMissionWhileItIsStillInSpaceAndAssignedToOriginalMission() {
         // given
         app.addNewMission("Luna");
         app.addNewRocketToRepository("Dragon1");
@@ -560,8 +560,33 @@ public class DragonRocketsAppTest {
         app.addNewRocketToRepository("Dragon4");
         app.assignRocketToMission("Dragon4", "Transit");
 
+        // when
+        app.assignRocketToMission("Dragon1", "Transit");
+
+        // then
+        List<MissionSummary> summaries = app.getSummary();
+
+        assertThat(summaries.get(0).getRocketNumber()).isEqualTo(3);
+        assertThat(summaries.get(0).status()).isEqualTo("In progress");
+        assertThat(summaries.get(1).status()).isEqualTo("In progress");
+        assertThat(summaries.get(1).getRocketNumber()).isEqualTo(1);
+    }
+
+    @Test
+    void shouldNotBeAbleToReassignRocketToAnotherMissionWhileItIsInRepairButStillAssignedToOriginalMission() {
+        // given
+        app.addNewMission("Luna");
+        app.addNewRocketToRepository("Dragon1");
+        app.addNewRocketToRepository("Dragon2");
+        app.addNewRocketToRepository("Dragon3");
+        app.assignRocketToMission("Dragon1", "Luna");
+        app.assignRocketToMission("Dragon2", "Luna");
+        app.assignRocketToMission("Dragon3", "Luna");
         app.setRocketStatus("Dragon1", "Luna", RocketStatus.IN_REPAIR);
-        app.setRocketStatus("Dragon1", "Luna", RocketStatus.ON_GROUND);
+
+        app.addNewMission("Transit");
+        app.addNewRocketToRepository("Dragon4");
+        app.assignRocketToMission("Dragon4", "Transit");
 
         // when
         app.assignRocketToMission("Dragon1", "Transit");
@@ -570,8 +595,8 @@ public class DragonRocketsAppTest {
         List<MissionSummary> summaries = app.getSummary();
 
         assertThat(summaries.get(0).getRocketNumber()).isEqualTo(2);
-        assertThat(summaries.get(0).status()).isEqualTo("In progress");
-        assertThat(summaries.get(1).status()).isEqualTo("Pending");
-        assertThat(summaries.get(1).getRocketNumber()).isEqualTo(2);
+        assertThat(summaries.get(0).status()).isEqualTo("Pending");
+        assertThat(summaries.get(1).status()).isEqualTo("In progress");
+        assertThat(summaries.get(1).getRocketNumber()).isEqualTo(1);
     }
 }

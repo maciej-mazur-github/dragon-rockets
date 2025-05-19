@@ -55,7 +55,7 @@ public class MissionManager implements Manager {
         if (newStatus == RocketStatus.IN_REPAIR) {
             mission.setStatus(MissionStatus.PENDING);
             mission.getInSpaceRocketsRepository().removeRocket(rocket);
-            mission.getInSpaceRocketsRepository().addRocket(rocket);
+            mission.getInRepairRocketsRepository().addRocket(rocket);
         } else if (newStatus == RocketStatus.IN_SPACE && oldStatus == RocketStatus.ON_GROUND) {
             mission.getInSpaceRocketsRepository().addRocket(rocket);
             if (mission.getInRepairRocketsRepository().getNumberOfRockets() == 0) {
