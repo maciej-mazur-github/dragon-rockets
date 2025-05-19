@@ -1,6 +1,7 @@
 <h2 align="center">
-TDD based library to manage Dragon rockets and space missions and to get a list of mission summaries or to print them. As per requirements, no front-end, no persistence and no frameworks have been used. <br>Just core Java and unit testing, with complexity lying in multiple feedbacks between multiple action scenarios.
+TDD based library to manage Dragon rockets and space missions and to get a list of mission summaries or to print them.<br> 
 </h2>
+<h3 align="center">As per requirements, no front-end, no persistence and no frameworks have been used. <br><br>Just core Java and unit testing, with complexity lying in multiple feedbacks between multiple action scenarios.</h3>
 
 ## Table Of Content
 <ol>
