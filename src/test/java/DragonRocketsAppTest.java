@@ -599,4 +599,71 @@ public class DragonRocketsAppTest {
         assertThat(summaries.get(1).status()).isEqualTo("In progress");
         assertThat(summaries.get(1).getRocketNumber()).isEqualTo(1);
     }
+
+    @Test
+    void shouldChangeInProgressMissionStatusToPendingWhenRocketWasFirstInAnotherMissionThenSetToInRepairAndThenGroundedAndThenAssignedToAnotherMission() {
+        // given
+        app.addNewMission("Luna");
+        app.addNewRocketToRepository("Dragon1");
+        app.addNewRocketToRepository("Dragon2");
+        app.addNewRocketToRepository("Dragon3");
+        app.assignRocketToMission("Dragon1", "Luna");
+        app.assignRocketToMission("Dragon2", "Luna");
+        app.assignRocketToMission("Dragon3", "Luna");
+
+        app.addNewMission("Transit");
+        app.addNewRocketToRepository("Dragon4");
+        app.assignRocketToMission("Dragon4", "Transit");
+
+        app.setRocketStatus("Dragon1", "Luna", RocketStatus.IN_REPAIR);
+        app.setRocketStatus("Dragon1", "Luna", RocketStatus.ON_GROUND);
+
+        // when
+        app.assignRocketToMission("Dragon1", "Transit");
+
+        // then
+        List<MissionSummary> summaries = app.getSummary();
+
+        assertThat(summaries.get(0).name()).isEqualTo("Luna");
+        assertThat(summaries.get(0).getRocketNumber()).isEqualTo(2);
+        assertThat(summaries.get(0).status()).isEqualTo("In progress");
+
+        assertThat(summaries.get(1).name()).isEqualTo("Transit");
+        assertThat(summaries.get(1).getRocketNumber()).isEqualTo(1);
+        assertThat(summaries.get(1).status()).isEqualTo("Pending");
+    }
+
+    @Test
+    void shouldEventuallyChangeMissionStatusToInProgressWhenRocketWasFirstInAnotherMissionThenSetToInRepairAndThenGroundedAndThenAssignedToAnotherMissionAndThenItsStatusIsSetBackToInSpace() {
+        // given
+        app.addNewMission("Luna");
+        app.addNewRocketToRepository("Dragon1");
+        app.addNewRocketToRepository("Dragon2");
+        app.addNewRocketToRepository("Dragon3");
+        app.assignRocketToMission("Dragon1", "Luna");
+        app.assignRocketToMission("Dragon2", "Luna");
+        app.assignRocketToMission("Dragon3", "Luna");
+
+        app.addNewMission("Transit");
+        app.addNewRocketToRepository("Dragon4");
+        app.assignRocketToMission("Dragon4", "Transit");
+
+        app.setRocketStatus("Dragon1", "Luna", RocketStatus.IN_REPAIR);
+        app.setRocketStatus("Dragon1", "Luna", RocketStatus.ON_GROUND);
+
+        // when
+        app.assignRocketToMission("Dragon1", "Transit");
+        app.setRocketStatus("Dragon1", "Transit", RocketStatus.IN_SPACE);
+
+        // then
+        List<MissionSummary> summaries = app.getSummary();
+
+        assertThat(summaries.get(0).name()).isEqualTo("Transit");
+        assertThat(summaries.get(0).getRocketNumber()).isEqualTo(2);
+        assertThat(summaries.get(0).status()).isEqualTo("In progress");
+
+        assertThat(summaries.get(1).name()).isEqualTo("Luna");
+        assertThat(summaries.get(1).getRocketNumber()).isEqualTo(2);
+        assertThat(summaries.get(1).status()).isEqualTo("In progress");
+    }
 }

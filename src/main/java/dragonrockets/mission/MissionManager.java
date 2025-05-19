@@ -48,7 +48,6 @@ public class MissionManager implements Manager {
     @Override
     public void setRocketStatus(Rocket rocket, String missionName, RocketStatus newStatus) {
         RocketStatus oldStatus = rocket.getStatus();
-        rocket.setStatus(newStatus);
 
         Mission mission = missions.get(missionName);
 
@@ -67,7 +66,14 @@ public class MissionManager implements Manager {
             if (mission.getInRepairRocketsRepository().getNumberOfRockets() == 0) {
                 mission.setStatus(MissionStatus.IN_PROGRESS);
             }
-        } else if (newStatus == RocketStatus.ON_GROUND) {
+        } else if (newStatus == RocketStatus.ON_GROUND && oldStatus == RocketStatus.IN_REPAIR) {
+            mission.getInRepairRocketsRepository().removeRocket(rocket);
+            if (mission.getInRepairRocketsRepository().getNumberOfRockets() == 0) {
+                mission.setStatus(MissionStatus.IN_PROGRESS);
+            }
+            rocket.setLastMission(null);
+            return;
+        } else if (newStatus == RocketStatus.ON_GROUND && oldStatus == RocketStatus.IN_SPACE) {
             // This rocket must be in one of below sub-repositories, so to avoid iterative search
             // the removal is called for both sub-repositories
             mission.getInRepairRocketsRepository().removeRocket(rocket);
@@ -80,6 +86,8 @@ public class MissionManager implements Manager {
                 mainRepository.wipeOutRocketsLastMission(mission);
             }
         }
+
+        rocket.setStatus(newStatus);
     }
 
     @Override
