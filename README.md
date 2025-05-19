@@ -19,15 +19,14 @@ TDD based library to manage Dragon rockets and space missions and to get a list 
 
 The repository supports the following operations:
 
-1. Add a new rocket. When the new rocket is added, its status should be “On ground” (it’s the initial score).
-2. Assign rocket to mission. Rocket can be assigned only to 1 mission.
-3. Change rocket status (see list possible statuses below).
-4. Add a new mission. When the new mission is added, its status should be “Scheduled”)
-5. Assign rockets to the mission (the mission can have multiple rockets)
-6. Change mission status
-7. Get a summary of missions by number of rockets assigned. Missions with the same number of rockets should be ordered in descending alphabetical order.
-8. Print mission details to the console.
-9. Statuses of rockets and missions:
+1. Add a new rocket. When the new rocket is added, its status should be “On ground” (it’s the initial score). Use <code>boolean addNewRocketToRepository(String rocketName)</code> method.
+2. Assign rocket to mission. Rocket can be assigned only to 1 mission. The mission can have multiple rockets. Use <code>boolean assignRocketToMission(String rocketName, String missionName)</code> method.
+3. Change rocket status (see list of possible statuses below). Use <code>void setRocketStatus(String rocketName, String missionName, RocketStatus newStatus)</code> method. 
+4. Add a new mission. When the new mission is added, its status should be “Scheduled”). Use <code>boolean addNewMission(String missionName)</code> method.
+5. Change mission status. Use <code>boolean setMissionStatus(String missionName, MissionStatus newStatus)</code> method.
+6. Get a summary of missions by number of rockets assigned. Missions with the same number of rockets should be ordered in descending alphabetical order. Use <code>List\<MissionSummary> getSummary()</code> method.
+7. Print mission details to the console. Use <code>void printMissionSummary()</code> method.
+8. Statuses of rockets and missions:
 <br><br>
    <pre>
     a. Rocket can have statuses:
